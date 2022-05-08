@@ -1,0 +1,21 @@
+
+driver:
+  org.sqlite.JDBC
+db:
+  hrjz.db
+url:
+  jdbc:sqlite:/mnt/collection/pwt/work/the/hrjz.db
+username:
+  peng
+password:
+  peng
+characterEncoding:
+  utf-8
+InitialSize:
+  1
+MaxActive:
+  1
+MaxWait:
+  1
+MinIdle:
+  1
