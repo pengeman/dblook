@@ -8,5 +8,6 @@ package org.peng.dblook;
  * @author peng
  */
 public class Common {
-    static String userdir;
+    static public String userdir;
+    static public dbhelp.DataBase dataBase; // 数据库对象
 }

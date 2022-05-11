@@ -3,26 +3,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="pane" prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.peng.dblook.DBfcontroller">
+<AnchorPane fx:id="pane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peng.dblook.DBfcontroller">
     <children>
         <FlowPane>
             <children>
                 <ToolBar fx:id="toolBar" prefHeight="36.0" prefWidth="600.0">
                     <items>
-                        <Button fx:id="b_go" mnemonicParsing="false" prefHeight="26.0" prefWidth="44.0" text="Go"/>
-                        <Button fx:id="b_dbsource" mnemonicParsing="false" text="数据源">
-                        </Button>
+                        <Button fx:id="b_go" mnemonicParsing="false" prefHeight="26.0" prefWidth="44.0" text="Go" />
+                        <Button fx:id="b_dbsource" mnemonicParsing="false" text="数据源"/>
+                        <Button fx:id="b_notebook" mnemonicParsing="false" text="记事本"/>
                     </items>
                 </ToolBar>
             </children>
         </FlowPane>
-        <SplitPane fx:id="splitPane" dividerPositions="0.494949494949495" layoutY="36.0" orientation="VERTICAL"
-                   prefHeight="364.0" prefWidth="600.0">
+        <SplitPane fx:id="splitPane" dividerPositions="0.494949494949495" layoutY="36.0" orientation="VERTICAL" prefHeight="364.0" prefWidth="600.0">
             <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0"/>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0"/>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
             </items>
         </SplitPane>
     </children>

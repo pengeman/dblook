@@ -33,6 +33,10 @@ public class DBfcontroller implements Initializable {
     @FXML
     private Button b_dbsource;
     @FXML
+    private Button b_go;
+    @FXML
+    private Button b_notebook;
+    @FXML
     private SplitPane splitPane;
 
 
@@ -59,12 +63,31 @@ public class DBfcontroller implements Initializable {
         toolBar.prefWidthProperty().bind(pane.widthProperty());
         splitPane.prefWidthProperty().bind(pane.widthProperty());
 
+        b_go.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                bgo_clicked();
+            }
+        });
         b_dbsource.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 DBfcontroller.this.dbsource_clicked(event);
             }
         });
+        b_notebook.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                bnotebook_clicked();
+            }
+        });
+    }
+
+    private void bnotebook_clicked() {
+        new org.peng.dblook.jishiben();
+    }
+
+    private void bgo_clicked() {
     }
 
     public ToolBar getToolBar() {

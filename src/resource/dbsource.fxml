@@ -22,8 +22,8 @@
             </items>
         </SplitPane>
         <Button fx:id="b_cancel" layoutX="496.0" layoutY="437.0" mnemonicParsing="false" prefHeight="26.0"
-                prefWidth="90.0" text="Button"/>
+                prefWidth="90.0" text="放弃"/>
         <Button fx:id="b_confirm" layoutX="370.0" layoutY="437.0" mnemonicParsing="false" prefHeight="26.0"
-                prefWidth="90.0" text="Button"/>
+                prefWidth="90.0" text="确定"/>
     </children>
 </AnchorPane>

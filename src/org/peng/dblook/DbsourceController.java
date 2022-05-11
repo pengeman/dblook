@@ -1,9 +1,12 @@
 package org.peng.dblook;
 
+import dbhelp.Connection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -11,7 +14,12 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.logging.Log;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,10 +37,11 @@ import java.util.ResourceBundle;
  * @exception
  * @return
  */
-@Log4j
+
 public class DbsourceController implements Initializable {
 
-    private  String curProject; // 当前选中的工程名称
+    private String curProject; // 当前选中的工程名称
+    private String driver, url, db, username, pwd;
 
     @FXML
     private TextArea textArea;
@@ -79,20 +88,62 @@ public class DbsourceController implements Initializable {
                 @Override
                 public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                     // listView item被点击
-                    log.debug(newValue);
+                    System.out.println("clicked...." + newValue);
+
                     DbsourceController.this.curProject = (String) newValue;
+
+                    driver = pro.getProperty(newValue + ".driver");
+                    url = pro.getProperty(newValue + ".url");
+                    db = pro.getProperty(newValue + ".db");
+                    username = pro.getProperty(newValue + ".username");
+                    pwd = pro.getProperty(newValue + ".password");
+                    textArea.setText("driver = " + driver + "\n" +
+                            "url = " + url + "\n" +
+                            "db = " + db + "\n" +
+                            "username = " + username + "\n" +
+                            "password = " + pwd);
                 }
-
-
             });
-        }catch (java.io.IOException e){
-            log.error("DbsourceController 初始化发生异常");
-            log.error(e);
+
+            b_cancel.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    btnClose_Click();
+                }
+            });
+            b_confirm.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    btnConfirm_click();
+                }
+            });
+
+
+            /*this.parentPane.getScene().getWindow().setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent event) {
+                    btnClose_Click();
+                }
+            });*/
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
         }
 
 
+    }
 
+    private void btnConfirm_click() {
+        System.out.println("确定,链接数据库");
+        // 链接数据库,创建数据库对象
+        dbhelp.Connection con = new Connection(driver,url,username,pwd);
+        dbhelp.DataBase dataBase = con.createDatabase();
+        Common.dataBase = dataBase;
+        Stage stage = (Stage) this.b_confirm.getScene().getWindow();
+        stage.close();
+    }
 
+    private void btnClose_Click() {
+        System.out.println("关闭窗口");
     }
 
     private List getAllProject() {
@@ -108,7 +159,7 @@ public class DbsourceController implements Initializable {
                 prol.add(prop);
             }
         }
-            return prol;
+        return prol;
 
     }
 
