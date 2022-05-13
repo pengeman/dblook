@@ -84,7 +84,8 @@ public class DBfcontroller implements Initializable {
     }
 
     private void bnotebook_clicked() {
-        new org.peng.dblook.jishiben();
+         //org.peng.dblook.NoteDia(null,true)
+        org.peng.dblook.NoteDia.main();
     }
 
     private void bgo_clicked() {
