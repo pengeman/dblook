@@ -1,5 +1,7 @@
 package org.peng.dblook;
 
+import dbhelp.Connection;
+import dbhelp.DataSet;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -9,9 +11,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.net.URL;
@@ -25,6 +29,7 @@ import java.util.ResourceBundle;
  * @exception
  * @return
  */
+@Log4j
 public class DBfcontroller implements Initializable {
     @FXML
     private ToolBar toolBar;
@@ -38,7 +43,10 @@ public class DBfcontroller implements Initializable {
     private Button b_notebook;
     @FXML
     private SplitPane splitPane;
-
+    @FXML
+    private TextArea t_u;
+    @FXML
+    private TextArea t_d;
 
     public void dbsource_clicked(ActionEvent event) {
         //FXMLLoader loader = new FXMLLoader(getClass().getResource("/resource/dbsource.fxml"));
@@ -89,6 +97,10 @@ public class DBfcontroller implements Initializable {
     }
 
     private void bgo_clicked() {
+String t_sql = this.t_u.getSelectedText();
+log.debug(t_sql);
+DataSet ds = Common.dataBase.query(t_sql);
+ds.generateList()
     }
 
     public ToolBar getToolBar() {
