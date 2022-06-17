@@ -5,7 +5,6 @@
  */
 package org.peng.dblook;
 
-import dblook.Common;
 
 import javax.swing.undo.UndoManager;
 import java.awt.event.KeyEvent;
@@ -51,11 +50,11 @@ public class NoteDia extends javax.swing.JDialog {
         undo.setLimit(30);
         this.jTextPane1.getDocument().addUndoableEditListener(undo);
 
-        String path = dblook.Common.userdir + "/resource/icons/gur-project-16.png";
+        String path = org.peng.dblook.Common.userdir + "/resource/icons/gur-project-16.png";
         System.out.println("path : " + path);
-        path = dblook.Common.userdir + "/resource/icons/gur-project-14.png";
+        path = org.peng.dblook.Common.userdir + "/resource/icons/gur-project-14.png";
         jButton1.setIcon(new javax.swing.ImageIcon(path));
-        path = dblook.Common.userdir + "/resource/icons/gur-project-18.png";
+        path = org.peng.dblook.Common.userdir + "/resource/icons/gur-project-18.png";
         jButton2.setIcon(new javax.swing.ImageIcon(path));
         path = Common.userdir + "/resource/icons/gur-project-12.png";
         jButton3.setIcon(new javax.swing.ImageIcon(path));
@@ -203,9 +202,7 @@ public class NoteDia extends javax.swing.JDialog {
         }
     }
 
-    /**
-     * @param args the command line arguments
-     */
+
     public static void main() {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

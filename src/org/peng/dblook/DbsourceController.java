@@ -1,6 +1,6 @@
 package org.peng.dblook;
 
-import dbhelp.Connection;
+import dbhelp.DBConnection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,14 +15,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,8 +129,9 @@ public class DbsourceController implements Initializable {
     private void btnConfirm_click() {
         System.out.println("确定,链接数据库");
         // 链接数据库,创建数据库对象
-        dbhelp.Connection con = new Connection(driver,url,username,pwd);
+        DBConnection con = new DBConnection(driver,url,username,pwd);
         dbhelp.DataBase dataBase = con.createDatabase();
+
         Common.dataBase = dataBase;
         Stage stage = (Stage) this.b_confirm.getScene().getWindow();
         stage.close();

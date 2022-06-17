@@ -1,6 +1,9 @@
 package org.peng.dblook;
+/**
+ * 主程序，启动从这里开始
+ */
 
-import dblook.Common;
+import org.peng.dblook.Common;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

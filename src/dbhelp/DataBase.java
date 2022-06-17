@@ -1,8 +1,6 @@
 package dbhelp;
 
-import dbhelpx.DataSet;
-import dbhelpx.QuerySet;
-import oracle.net.ano.AuthenticationService;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;
@@ -20,7 +18,7 @@ import java.util.*;
 
 
 public class DataBase {
-private dbhelp.Connection connection;
+private DBConnection DBConnection;
 
 
     /**
@@ -37,10 +35,10 @@ private dbhelp.Connection connection;
     private String url;
 
 
-    public DataBase(String useName, String url, dbhelp.Connection con) {
+    public DataBase(String useName, String url, DBConnection con) {
         this.useName = useName;
         this.url = url;
-        this.connection = con;
+        this.DBConnection = con;
     }
 
 
@@ -88,10 +86,10 @@ private dbhelp.Connection connection;
         PreparedStatement stat = null;
         ResultSet rs = null;
 
-        QuerySet qs = null;
+
         //dbhelpx.DataSet ds = null;
         try {
-            conn = this.connection.getSqlConnection();
+            conn = this.DBConnection.getSqlConnection();
             stat = conn.prepareStatement(sql);
 
             hasmore = stat.execute();

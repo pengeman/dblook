@@ -9,8 +9,8 @@
 
             <property name="JDBC.Driver" value="com.mysql.jdbc.Driver"/>
             <property name="JDBC.ConnectionURL" value="jdbc:mysql://localhost:3306/testdb"/>
-            <property name="JDBC.Username" value="root"/>
-            <property name="JDBC.Password" value="root"/>
+            <property name="JDBC.Username" value="peng"/>
+            <property name="JDBC.Password" value="sa"/>
 
         </dataSource>
     </transactionManager>

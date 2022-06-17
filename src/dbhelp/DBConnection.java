@@ -20,7 +20,7 @@ import org.yaml.snakeyaml.Yaml;
  */
 
 
-public class Connection {
+public class DBConnection {
     private java.sql.Connection sqlConnection;
     private BasicDataSource bds;
     private String driverName; // 驱动程序名称
@@ -55,11 +55,11 @@ public class Connection {
         this.bds = bds;
     }
 
-    public Connection() {
+    public DBConnection() {
         this.sqlConnection = this.sqlConnection();
     }
 
-    public Connection(String driver, String url, String username, String password) {
+    public DBConnection(String driver, String url, String username, String password) {
         this.sqlConnection = this.sqlConnection(driver, url, username, password);
     }
 
@@ -181,7 +181,7 @@ public class Connection {
     }
 
     public static void main(String[] args) {
-        Connection con = new Connection();
+        DBConnection con = new DBConnection();
         con.sa();
     }
 }

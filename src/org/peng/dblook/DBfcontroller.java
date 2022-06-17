@@ -1,6 +1,6 @@
 package org.peng.dblook;
 
-import dbhelp.Connection;
+
 import dbhelp.DataSet;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,11 +14,15 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j;
+import org.slf4j.Logger;
+import org.slf4j.impl.Log4jLoggerAdapter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -29,7 +33,7 @@ import java.util.ResourceBundle;
  * @exception
  * @return
  */
-@Log4j
+
 public class DBfcontroller implements Initializable {
     @FXML
     private ToolBar toolBar;
@@ -49,8 +53,6 @@ public class DBfcontroller implements Initializable {
     private TextArea t_d;
 
     public void dbsource_clicked(ActionEvent event) {
-        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/resource/dbsource.fxml"));
-        //DbsourceController controller =  loader.getController();
         Parent root = null;
         Stage primaryStage = new Stage();
         try {
@@ -59,7 +61,9 @@ public class DBfcontroller implements Initializable {
             //root = loader.load();
             primaryStage.setTitle("database look");
             primaryStage.setScene(new Scene(root, 600, 600));
+            primaryStage.initModality(Modality.APPLICATION_MODAL);
             primaryStage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,6 +74,11 @@ public class DBfcontroller implements Initializable {
 
         toolBar.prefWidthProperty().bind(pane.widthProperty());
         splitPane.prefWidthProperty().bind(pane.widthProperty());
+        splitPane.prefHeightProperty().bind(pane.heightProperty());
+        t_u.prefWidthProperty().bind(pane.widthProperty());
+        t_u.prefHeightProperty().bind(pane.heightProperty());
+        t_d.prefWidthProperty().bind(pane.widthProperty());
+        t_d.prefHeightProperty().bind(pane.heightProperty());
 
         b_go.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -92,15 +101,18 @@ public class DBfcontroller implements Initializable {
     }
 
     private void bnotebook_clicked() {
-         //org.peng.dblook.NoteDia(null,true)
+        //org.peng.dblook.NoteDia(null,true)
         org.peng.dblook.NoteDia.main();
     }
 
+    // 执行sql语句
     private void bgo_clicked() {
-String t_sql = this.t_u.getSelectedText();
-log.debug(t_sql);
-DataSet ds = Common.dataBase.query(t_sql);
-ds.generateList()
+        String t_sql = this.t_u.getSelectedText();
+        System.out.println(t_sql);
+
+        DataSet ds = Common.dataBase.query(t_sql);
+        List dsls = ds.generateList();
+
     }
 
     public ToolBar getToolBar() {
