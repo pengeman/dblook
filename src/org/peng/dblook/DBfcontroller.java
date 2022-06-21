@@ -2,6 +2,9 @@ package org.peng.dblook;
 
 
 import dbhelp.DataSet;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -9,20 +12,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import lombok.extern.log4j.Log4j;
-import org.slf4j.Logger;
-import org.slf4j.impl.Log4jLoggerAdapter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -51,6 +51,8 @@ public class DBfcontroller implements Initializable {
     private TextArea t_u;
     @FXML
     private TextArea t_d;
+    @FXML
+    private TableView table_rs;
 
     public void dbsource_clicked(ActionEvent event) {
         Parent root = null;
@@ -113,6 +115,35 @@ public class DBfcontroller implements Initializable {
         DataSet ds = Common.dataBase.query(t_sql);
         List dsls = ds.generateList();
 
+        // 显示到table里
+        showtable(ds);
+    }
+
+    /**
+     * 将dataset数据显示到table里
+     *
+     * @return
+     */
+    private void showtable(DataSet ds) {
+        ObservableList<Map> data = FXCollections.observableArrayList();
+        ;
+        TableColumn t_col[];
+        List<String> colNames = ds.getColNameSet();
+        t_col = new TableColumn[colNames.size()];
+        for (int i = 0; i < t_col.length; i++) {
+            String colName = colNames.get(i);
+            t_col[i] = new TableColumn(colName);
+            t_col[i].setCellValueFactory(new MapValueFactory<String>(colName));
+        }
+
+        // 将ds中的数据写入ObservableList
+        List<Map<String, Object>> rss = ds.getDataTable(); // 源头
+        for (int i = 0; i < rss.size(); i++) {
+            data.add(rss.get(i));
+        }
+
+        this.table_rs.getColumns().addAll(t_col);
+        this.table_rs.setItems(data);
     }
 
     public ToolBar getToolBar() {

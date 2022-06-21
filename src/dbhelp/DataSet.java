@@ -11,8 +11,10 @@ package dbhelp;
 
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -38,6 +40,10 @@ public class DataSet {
         return null;
     }
 
+    /**
+     * 得到列名称集合
+     * @return
+     */
     public List getColNameSet() {
         return colNameSet;
     }
@@ -52,6 +58,14 @@ public class DataSet {
 
     public void setDataTable(List<Map<String, Object>> dataTable) {
         this.dataTable = dataTable;
+        if (dataTable.size() > 0){
+            Set colnames = dataTable.get(0).keySet();
+            this.setColNameSet(new ArrayList(colnames));  //  生成列名集合
+            this.setRowNum(dataTable.size());
+        }else{
+            this.setColNameSet(null);
+            this.setRowNum(0);
+        }
     }
 
     public int getRowNum() {
