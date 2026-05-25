@@ -15,6 +15,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -53,6 +54,16 @@ public class DbLook extends JFrame {
         connectBtn.addActionListener(e -> onConnect());
         executeBtn.addActionListener(e -> onExecuteCurrentTab());
         noteBtn.addActionListener(e -> onNote());
+
+        KeyStroke f5Key = KeyStroke.getKeyStroke("F5");
+        JRootPane rootPane = this.getRootPane();
+        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(f5Key, "execute");
+        rootPane.getActionMap().put("execute", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onExecuteCurrentTab();
+            }
+        });
 
         toolBar.add(connectBtn);
         toolBar.add(executeBtn);
@@ -106,12 +117,27 @@ public class DbLook extends JFrame {
     }
 
     private void addNewTab() {
-        JPanel panel = new JPanel(new BorderLayout());
         SqlEditorPanel editorPanel = new SqlEditorPanel(false);
         SqlResultPanel resultPanel = new SqlResultPanel();
 
-        panel.add(editorPanel, BorderLayout.CENTER);
-        panel.add(resultPanel, BorderLayout.SOUTH);
+        JTextArea statusBar = new JTextArea(3, 1);
+        statusBar.setEditable(false);
+        statusBar.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        statusBar.setLineWrap(true);
+        statusBar.setBackground(new Color(240, 240, 240));
+
+        JSplitPane topSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        topSplit.setTopComponent(editorPanel);
+        topSplit.setBottomComponent(resultPanel);
+        topSplit.setDividerLocation(300);
+        topSplit.setResizeWeight(0.5);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(topSplit, BorderLayout.CENTER);
+        panel.add(new JScrollPane(statusBar), BorderLayout.SOUTH);
+
+        panel.putClientProperty("resultPanel", resultPanel);
+        panel.putClientProperty("statusBar", statusBar);
 
         int index = sqlTabbedPane.getTabCount();
         sqlTabbedPane.addTab("SQL " + (index + 1), panel);
@@ -143,7 +169,7 @@ public class DbLook extends JFrame {
             if (info.isConnected()) {
                 DBConnection dbConn = activeConnections.get(info.getId());
                 if (dbConn != null) {
-                    loadTables(dbConn, node);
+                    loadTables(info, dbConn, node);
                 }
             }
         }
@@ -153,10 +179,11 @@ public class DbLook extends JFrame {
         treeModel.reload();
     }
 
-    private void loadTables(DBConnection dbConn, DefaultMutableTreeNode parent) {
+    private void loadTables(ConnectionInfo info, DBConnection dbConn, DefaultMutableTreeNode parent) {
         try {
-            DataBase db = new DataBase("", "", dbConn);
-            DataSet ds = db.query("SHOW TABLES");
+            DataBase db = new DataBase(info.getUsername(), info.getUrl(), dbConn);
+            String sql = getTableQuerySql(info.getDbType());
+            DataSet ds = db.query(sql);
             if (ds != null && ds.getDataTable() != null) {
                 for (Map<String, Object> row : ds.getDataTable()) {
                     String tableName = row.values().iterator().next().toString();
@@ -164,8 +191,24 @@ public class DbLook extends JFrame {
                 }
             }
         } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "获取表列表失败: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
+    }
+
+    private String getTableQuerySql(String dbType) {
+        if (dbType == null) return "SHOW TABLES";
+        dbType = dbType.toLowerCase();
+        if (dbType.contains("sqlite")) {
+            return "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
+        } else if (dbType.contains("postgresql") || dbType.contains("postgres")) {
+            return "SELECT tablename FROM pg_tables WHERE schemaname = 'public'";
+        } else if (dbType.contains("h2")) {
+            return "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'PUBLIC'";
+        } else if (dbType.contains("mysql")) {
+            return "SHOW TABLES";
+        }
+        return "SHOW TABLES";
     }
 
     private void showTreeContextMenu(MouseEvent e) {
@@ -196,7 +239,7 @@ public class DbLook extends JFrame {
             node.removeAllChildren();
             DBConnection dbConn = activeConnections.get(info.getId());
             if (dbConn != null) {
-                loadTables(dbConn, node);
+                loadTables(info, dbConn, node);
                 treeModel.reload(node);
                 connectionTree.expandPath(path);
             }
@@ -269,16 +312,17 @@ public class DbLook extends JFrame {
         int index = sqlTabbedPane.getSelectedIndex();
         if (index >= 0) {
             JPanel panel = (JPanel) sqlTabbedPane.getComponentAt(index);
-            for (Component comp : panel.getComponents()) {
-                if (comp instanceof SqlEditorPanel) {
-                    onExecute((SqlEditorPanel) comp);
-                    break;
+            Component splitOrEditor = panel.getComponent(0);
+            if (splitOrEditor instanceof JSplitPane) {
+                Component editorComp = ((JSplitPane) splitOrEditor).getTopComponent();
+                if (editorComp instanceof SqlEditorPanel) {
+                    onExecute((SqlEditorPanel) editorComp, panel);
                 }
             }
         }
     }
 
-    private void onExecute(SqlEditorPanel editorPanel) {
+    private void onExecute(SqlEditorPanel editorPanel, JPanel panel) {
         String sql = editorPanel.getSql();
         if (sql.isEmpty()) {
             JOptionPane.showMessageDialog(this, "SQL 语句不能为空", "提示", JOptionPane.WARNING_MESSAGE);
@@ -297,21 +341,12 @@ public class DbLook extends JFrame {
             return;
         }
 
-        int index = sqlTabbedPane.getSelectedIndex();
-        JPanel panel = (JPanel) sqlTabbedPane.getComponentAt(index);
-        SqlResultPanel resultPanel = null;
-        for (Component comp : panel.getComponents()) {
-            if (comp instanceof SqlResultPanel) {
-                resultPanel = (SqlResultPanel) comp;
-                break;
-            }
-        }
-
-        if (resultPanel != null) {
-            resultPanel.setLoading(true);
-        }
+        SqlResultPanel resultPanel = (SqlResultPanel) panel.getClientProperty("resultPanel");
+        JTextArea statusBar = (JTextArea) panel.getClientProperty("statusBar");
+        statusBar.setText("正在执行...");
 
         final SqlResultPanel finalResultPanel = resultPanel;
+        final JTextArea finalStatusBar = statusBar;
         final ConnectionInfo finalConnected = connected;
         final DBConnection finalDbConn = dbConn;
 
@@ -322,11 +357,8 @@ public class DbLook extends JFrame {
 
                 if (trimmedSql.startsWith("SELECT") || trimmedSql.startsWith("SHOW") || trimmedSql.startsWith("DESCRIBE") || trimmedSql.startsWith("EXPLAIN")) {
                     DataSet ds = db.query(sql);
-                    if (ds != null && ds.getDataTable() != null) {
-                        List<String> headers = new ArrayList<>();
-                        if (!ds.getDataTable().isEmpty()) {
-                            headers.addAll(ds.getDataTable().get(0).keySet());
-                        }
+                    if (ds != null && ds.getDataTable() != null && !ds.getDataTable().isEmpty()) {
+                        List<String> headers = new ArrayList<>(ds.getDataTable().get(0).keySet());
                         List<List<Object>> data = new ArrayList<>();
                         for (Map<String, Object> row : ds.getDataTable()) {
                             List<Object> rowData = new ArrayList<>();
@@ -335,28 +367,22 @@ public class DbLook extends JFrame {
                             }
                             data.add(rowData);
                         }
-                        if (finalResultPanel != null) {
-                            finalResultPanel.setData(headers, data);
-                        }
+                        int rowCount = ds.getDataTable().size();
+                        int colCount = headers.size();
+                        finalResultPanel.setData(headers, data);
+                        finalStatusBar.setText("查询完成: " + rowCount + " 行, " + colCount + " 列");
                     } else {
-                        if (finalResultPanel != null) {
-                            finalResultPanel.setEmpty();
-                        }
+                        finalResultPanel.setEmpty();
+                        finalStatusBar.setText("查询完成，无数据");
                     }
                 } else {
                     int affected = db.execute(sql);
-                    JOptionPane.showMessageDialog(DbLook.this, "执行成功，影响 " + affected + " 行", "成功", JOptionPane.INFORMATION_MESSAGE);
-                    if (finalResultPanel != null) {
-                        finalResultPanel.setEmpty();
-                    }
+                    finalResultPanel.setEmpty();
+                    finalStatusBar.setText("执行成功，影响 " + affected + " 行");
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(DbLook.this, "执行失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            } finally {
-                if (finalResultPanel != null) {
-                    finalResultPanel.setLoading(false);
-                }
+                finalResultPanel.setEmpty();
+                finalStatusBar.setText("执行失败: " + ex.getMessage());
             }
         }).start();
     }
